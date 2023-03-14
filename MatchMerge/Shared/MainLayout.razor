@@ -1,0 +1,69 @@
+﻿@inherits LayoutComponentBase
+
+<RadzenDialog />
+<RadzenNotification />
+<RadzenLayout>
+<RadzenHeader>
+    <ChildContent>
+
+        <nav class="navbar">
+            <RadzenImage Path="images/LogoCannyForce.png" Click=@(args => NavigationManager.NavigateTo("home")) Style="width:200px; height:34px;margin-right:5%;cursor:pointer" />
+            <div class="links">
+                <RadzenMenu Responsive="true" Style="flex-wrap: wrap; z-index: 1; ">
+
+                    <RadzenMenuItem Text="@userName" Icon="account_circle" Style="font-size:12px">
+                        <RadzenMenuItem Text="Profile" Path="profile" Icon="account_circle" Style="font-size:12px"></RadzenMenuItem>
+                        @*                            <RadzenMenuItem Text="Notifications" Path="NotificationsList" Icon="notifications" Style="font-size:12px"></RadzenMenuItem>
+                        *@                            <RadzenMenuItem Text="Logout" Path="logout" Icon="logout" Style="font-size:12px"></RadzenMenuItem>
+                    </RadzenMenuItem>
+                 <RadzenMenuItem Icon="info" Text="Support" Style="font-weight: 400; color: white; background-color: #b3afb0; border-radius: 8px; font-size: 10px"></RadzenMenuItem>
+
+                </RadzenMenu>
+            </div>
+        </nav>
+    </ChildContent>
+</RadzenHeader>
+ <RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
+        <ChildContent>
+            <RadzenContentContainer Name="main">
+                @Body
+            </RadzenContentContainer>
+        </ChildContent>
+    </RadzenBody>
+<RadzenFooter>
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-6  d-flex align-items-end justify-content-start">
+                <RadzenLabel Text="&copy; 2021 ALIDADE. All Rights Reserved." Style="font-weight:400; color:dimgray;font-size:small" />
+            </div>
+            <div class="col-md-6  d-flex align-items-end justify-content-end">
+            </div>
+        </div>
+
+    </ChildContent>
+</RadzenFooter>
+</RadzenLayout>
+@code {
+
+    string userName = "Profile";
+    string userId;
+    RadzenBody body0;
+    bool bodyExpanded = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        //await Task.Delay(2000);
+        //if (userId == null)
+        //{
+        //    NavigationManager.NavigateTo("login");
+        //    return;
+        //}
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        userId = await sessionStorage.GetItemAsync<string>("UserId");
+        userName = await sessionStorage.GetItemAsync<string>("UserName");   
+        StateHasChanged();
+    }
+}

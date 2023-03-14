@@ -1,0 +1,73 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = MatchMerge
+build_property.RootNamespace = MatchMerge
+build_property.ProjectDir = C:\Users\Nessima\Desktop\MatchAndMerge_15_12_2023\MatchMerge\MatchMerge\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Nessima\Desktop\MatchAndMerge_15_12_2023\MatchMerge\MatchMerge
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Pages/Component.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tcG9uZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Shared/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Shared/LoginLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Shared/Logout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ291dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Shared/SkeletonLoad.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFNrZWxldG9uTG9hZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Shared/SpinnerLoading.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFNwaW5uZXJMb2FkaW5nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Pages/ExcelDownload.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXhjZWxEb3dubG9hZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nessima/Desktop/MatchAndMerge_15_12_2023/MatchMerge/MatchMerge/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 

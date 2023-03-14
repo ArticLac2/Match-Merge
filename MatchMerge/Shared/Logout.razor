@@ -1,0 +1,19 @@
+﻿
+@page "/logout"
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await sessionStorage.ClearAsync();
+        await localStorage.ClearAsync();
+        NavigationManager.NavigateTo("login");
+    }
+}

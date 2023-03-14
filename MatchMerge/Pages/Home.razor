@@ -1,0 +1,1672 @@
+﻿@page "/home"
+<style>
+    ul.b {
+        list-style-type: square;
+        color: red;
+    }
+</style>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start">
+            <h3 style="font-weight:bold">Match & Merge</h3>
+        </div>
+            <div class="col-md-6 d-flex align-items-end justify-content-end">
+            <RadzenButton class="buttonStyle" Click="@(args => ImportFile())" Style="background-color: forestgreen; font-weight: 600; border-radius: 50px; margin-right: 10px " Text="Import File" />
+        </div>
+    </div>
+@if (IsImportFile)
+{
+           <div class="row justify-content-center">
+            <div class="col-md-12">
+                    <RadzenCard Style="width:auto; margin-top:10px;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                    <div class="row align-items-center ">
+                                            <div class="col-md-12 control-section sb-property-border">
+                                                <div class="control-wrapper">
+                                            <SfUploader AllowMultiple="false" @ref="UploadObj" ID="UploadFiles" MaxFileSize="2000000" AllowedExtensions="@ExtensionAllowed">
+                                                        <UploaderEvents  ValueChange="OnChangeFileBytes"></UploaderEvents>
+                                              </SfUploader>
+                                                </div>
+                                            </div>
+                                    </div>
+                                        <div class="row" style="margin-top: 7px;">
+                                        <div class="col-md-11">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <RadzenButton class="buttonStyle" Text="Import" Style="background-color: steelblue;width:100%; border-radius: 50px" Click="args => Import()"></RadzenButton>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+            </div>
+            </div>
+}
+@if (ShowResults)
+{   
+           <div class="row justify" style="margin-top:10px">
+                <div class="col-md-6 d-flex align-items-end justify-content-start " style="margin-left: 0%; margin-top: 0%;">
+                    <h3 style="font-weight: bold">Results (@CountList) </h3>
+                </div>
+            </div>
+            <div class="row" style="padding:10px">
+                <SfGrid @ref="@GridExcel" Height="@HeightMatchMergeGrid" DataSource="@liste"  AllowSelection="true" AllowGrouping="true" AllowMultiSorting="true" AllowSorting="true" AllowFiltering="true" AllowPaging="true"  AllowResizing="true" ShowColumnChooser="true" Toolbar="@( new List<string>() { "ColumnChooser"})" >
+                    <GridFilterSettings Type="@FilterType.CheckBox"></GridFilterSettings>
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+                    <GridEvents RowSelected="RowSelecthandler" QueryCellInfo="CustomizeCell" TValue="ExcelMatchMergeModel"></GridEvents>
+                    <GridPageSettings PageSize="20"></GridPageSettings>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.NomIndividu) HeaderText="Individual">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleSpecialite) HeaderText="Specialty">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleTypeIndividu) HeaderText="Individual Type">
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.Civilite) HeaderText="Civility" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleDepartementIndividu) HeaderText="Individual Department" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.VilleIndividu) HeaderText="Individual City" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.CodePostalIndividu) HeaderText="Individual Postal Code" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.AdresseIndividu) HeaderText="Address" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.TelephoneFixeIndividu) HeaderText="Phone" Visible="false">
+                        </GridColumn>
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleEtablissement) HeaderText="Place">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleSpecialiteEtablissement) HeaderText="Place Speciality" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleTypeEtablissement) HeaderText="Place Type">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleDepartementEtablissement) HeaderText="Department">
+                        </GridColumn>
+                         <GridColumn Field=@nameof(EtablissementModel.LibelleDecoupage) Visible="false" HeaderText="Partition">
+                         </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.LibelleTerritoire) HeaderText="Territory">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.VilleEtablissement)  Visible="false" HeaderText="Place City">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.CodePostalEtablissement)  Visible="false" HeaderText="Place Postal Code">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.AdresseEtablissement) HeaderText="Address">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.TelephoneFixeEtablissement) HeaderText="Working Phone">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.DateDebutActivite) HeaderText="Activity start Date" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(ExcelMatchMergeModel.DateFinActivite) HeaderText="Activity End Date" Visible="false">
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+    @if (IsSelectedMatch)
+    {
+        @if (Etablissements == null)
+        {
+            <div class="row justify-content-center">
+                <div class="col-md-2 d-flex align-items-end justify-content-start" >
+                <h3 style="font-weight:bold"> Similar Places results </h3>
+                </div>
+                <div class="col-md-10 d-flex align-items-end justify-content-end" >
+
+                </div>
+            </div> 
+            <RadzenCard Style="border: solid 1px #D3D3D3;border-radius: 10px;">
+                <SkeletonLoad></SkeletonLoad> 
+            </RadzenCard>
+        }
+        else
+        {
+                <div class="row" style="padding:10px">
+                <div class="col-md-12 d-flex align-items-end justify-content-start">
+                    <h4>Similar Places results for @SelectedMatchMerge.LibelleEtablissement (@Etablissements.Count())</h4>
+                </div>
+            </div>
+            <div class="row" style="padding:10px">
+                <SfGrid DataSource="@Etablissements" AllowResizing="true" AllowSelection="true" AllowFiltering="true" AllowSorting="true" ShowColumnChooser="true" Toolbar="@( new List<string>() { "ColumnChooser"})">
+                    <GridEvents OnRecordClick="OnSelectUpdatePlace" TValue="EtablissementModel"></GridEvents>
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+                    <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+                    <SfToolbar>
+                        <ToolbarItems>
+                            <ToolbarItem Type="ItemType.Input">
+                                <Template>
+                                    <div class="row">
+                                        <div class="col-md-12 d-flex align-items-end justify-content-end">
+                                    <RadzenButton class="buttonStyle" Click="@(args => addP(SelectedMatchMerge))" Icon="add" Style="background-color: transparent; color: black;font-weight:600; border-radius: 50px; margin-right: 10px " Disabled=@DisablePlaceButton />
+                                    <RadzenButton class="buttonStyle" Click="@(args => updateP(SelectedMatchMerge))" Icon="edit" Style="background-color: transparent; color: black; font-weight: 600; border-radius: 50px; margin-right: 10px " Disabled=@DisablePlaceButton />
+                                    <RadzenButton class="buttonStyle" Click="@(args => equalP(SelectedMatchMerge))" Icon="cancel" Style="background-color: transparent; color: black; font-weight: 600; border-radius: 50px;" Disabled=@DisablePlaceButton />
+                                    </div>
+                                    </div>
+                                </Template>
+                            </ToolbarItem>
+                        </ToolbarItems>
+                    </SfToolbar>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(EtablissementModel.LibelleEtablissement) HeaderText="Place" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.LibelleTypeEtablissement) HeaderText="Type" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.LibelleCategorieEtablissement) HeaderText="Category" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.LibelleSpecialite) HeaderText="Specialty" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.LibelleDepartement) HeaderText="Department">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.LibelleDecoupage) Visible="false" HeaderText="Partition">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.LibelleTerritoire) HeaderText="Territory">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.Ville) Visible="false" HeaderText="Place City">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.CodePostal)  Visible="false" HeaderText="Place Postal Code">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.AdresseComplete) HeaderText="Address" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left" Width="240" Visible="false"></GridColumn>
+                        <GridColumn Field=@nameof(EtablissementModel.ListeDesTelephones) HeaderText="Phone" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left" Width="120" Visible="false"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        }
+
+
+        @if (IndividusView == null)
+        {
+            <div class="row justify-content-center">
+                    <div class="col-md-2 d-flex align-items-end justify-content-start" >
+                    <h3 style="font-weight:bold"> Similar Individuals results </h3>
+                    </div>
+                    <div class="col-md-10 d-flex align-items-end justify-content-end" >
+
+                    </div>
+                </div> 
+                <RadzenCard Style="border: solid 1px #D3D3D3;border-radius: 10px;">
+                    <SkeletonLoad></SkeletonLoad> 
+                </RadzenCard>
+}
+        else
+        {
+                <div class="row" style="padding:10px">
+                <div class="col-md-12 d-flex align-items-end justify-content-start">
+                    <h4>Similar Individuals results for @SelectedMatchMerge.NomIndividu (@IndividusView.Count())</h4>
+                </div>
+            </div>
+            <div class="row" style="padding:10px;margin-bottom:30px">
+                <SfGrid DataSource="@IndividusView" AllowResizing="true" AllowFiltering="true" AllowSorting="true" AllowSelection="true" ShowColumnChooser="true" Toolbar="@( new List<string>() { "ColumnChooser"})">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+                    <GridEvents OnRecordClick="OnSelectUpdate" TValue="IndividuViewModel"></GridEvents>
+                    <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+                        <SfToolbar>
+                        <ToolbarItems>
+                            <ToolbarItem Type="ItemType.Input">
+                                <Template>
+                                <RadzenButton class="buttonStyle" Click="@(args => add(SelectedMatchMerge))" Icon="add" Style="background-color: transparent; color: black;font-weight:600; border-radius: 50px; margin-right: 10px " Disabled=@DisableIndividualButton />
+                                <RadzenButton class="buttonStyle" Click="@(args => update(SelectedMatchMerge))" Icon="edit" Style="background-color: transparent; color: black; font-weight: 600; border-radius: 50px; margin-right: 10px " Disabled=@DisableIndividualButton />
+                                <RadzenButton class="buttonStyle" Click="@(args => equal(SelectedMatchMerge))" Icon="cancel" Style="background-color: transparent; color: black; font-weight: 600; border-radius: 50px;" Disabled=@DisableIndividualButton />      
+                                </Template>
+                            </ToolbarItem>
+                        </ToolbarItems>
+                    </SfToolbar>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(IndividuViewModel.NomIndividu) HeaderText="Individual">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleSpecialite) HeaderText="Specialty">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleTypeIndividu) HeaderText="Individual Type">
+                        <GridColumn Field=@nameof(IndividuViewModel.Civilite) HeaderText="Civility" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleDepartementIndividu) HeaderText="Individual Department" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.VilleIndividu) HeaderText="Individual City" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.CodePostalIndividu) HeaderText="Postal Code" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.AdresseIndividu) HeaderText="Address" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.TelephoneFixeIndividu) HeaderText="Phone" Visible="false">
+                        </GridColumn>
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleEtablissement) HeaderText="Place">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleSpecialiteEtablissement) HeaderText="Place Speciality" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleTypeEtablissement) HeaderText="Place Type">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleDepartementEtablissement) HeaderText="Department">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.LibelleTerritoire) HeaderText="Territory">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.AdresseEtablissement) HeaderText="Address">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.TelephoneFixeEtablissement) HeaderText="Working Phone" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.DateDebutActivite) HeaderText="Activity start Date" Visible="false">
+                        </GridColumn>
+                        <GridColumn Field=@nameof(IndividuViewModel.DateFinActivite) HeaderText="Activity End Date" Visible="false">
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        }
+
+    }
+}
+@code {
+
+
+    /*ints*/
+    int CountList;
+    int CountAction = 0;
+
+    /*Boolean*/
+    bool showIndividualFiltered = false;
+    bool erreur = false;
+    bool IsImportFile = true;
+    bool IsSelectedMatch = false;
+    bool DisableIndividualButton = false;
+    bool DisablePlaceButton = false;
+    bool ShowResults = false;
+
+    /* Double */
+    Double NbRow;
+
+    /*Strings */
+    string NameError = "";
+    string NameImage = "";
+    string condition = "";
+    string IdSpecialite = null;
+    string IdSpec = "";
+    string IdTypeIndividu = "";
+    string IdDepartement = null;
+    string IdTerritoire = "";
+    string IdDecoupage = "";
+    string IdTypeetablissement = "";
+    string IdCategorieEtablissement = "";
+    string IdIndividu = "";
+    string IdPlace = "";
+    string HeightMatchMergeGrid = "700";
+    string Exceptionfile = "";
+    string ExtensionAllowed { get; set; } = ".xls, .xlsx";
+
+    /*objects*/
+    UploadFiles Document = new UploadFiles();
+    ExcelMatchMergeModel SelectedMatchMerge = new ExcelMatchMergeModel();
+
+    /*Listes */
+    public IndividuViewModel IndividuUpdate = new IndividuViewModel();
+    IList<TitreModel> Titres;
+    IList<SpecialiteModel> Specialites;
+    IList<DepartementModel> Departements;
+    IList<TypeEtablissementModel> TypeEtablissements;
+    IList<CategorieEtablissementModel> CategoriesEtablissements;
+    IList<TypeIndividuModel> TypeIndividus;
+    IList<IndividuViewModel> IndividusView;
+    IList<DecoupageModel> Decoupages;
+    IList<DecoupageDetailModel> Territoires;
+    IList<EtablissementModel> Etablissements = new List<EtablissementModel> { };
+    public List<ExcelMatchMergeModel> RowSelect { get; set; } = new List<ExcelMatchMergeModel>();
+    public List<IndividuViewModel> RowUpdate { get; set; } = new List<IndividuViewModel>();
+    public List<EtablissementModel> RowUpdateP { get; set; } = new List<EtablissementModel>();
+    public List<ExcelMatchMergeModel> liste { get; set; } = new List<ExcelMatchMergeModel>();
+    List<string> reportList = new List<string>() { };
+    List<int> ErrorPosition = new List<int>() { };
+
+    /*files*/
+    SfUploader UploadObj;
+    SfGrid<ExcelMatchMergeModel> GridExcel;
+    IFileListEntry fileCharge;
+    System.IO.FileInfo fileRead;
+    OfficeOpenXml.ExcelWorksheet worksheet;
+    byte[] File;
+
+    private ColumnChooserTemplateContext templateContext { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Specialites = await SpecialiteService.ListAll("", "LibelleSpecialite", "");
+        Departements = await DepartementService.ListAll("", "Libelledepartement", "");
+        TypeEtablissements = await TypeEtablissementService.ListAll("", "LibelleTypeEtablissement", "");
+        TypeIndividus = await TypeIndividuService.ListAll("", "LibelleTypeIndividu", "");
+        CategoriesEtablissements = await CategorieEtablissementService.ListAll("", "LibelleCategorieEtablissement", "");
+        Decoupages = await DecoupageService.ListAll("", "LibelleDecoupage", "");
+        Territoires = await DecoupageDetailService.ListAll("", "DescriptionTerritoire", "");
+    }
+    public void CustomizeCell(QueryCellInfoEventArgs<ExcelMatchMergeModel> args)
+    {
+        if (args.Data.action)
+        {
+            args.Cell.AddStyle(new string[] { "font-weight: bold;" });
+        }
+    }
+
+    void ImportFile()
+    {
+        IsImportFile = !IsImportFile;
+    }
+    private async void OnChangeFileBytes(Syncfusion.Blazor.Inputs.UploadChangeEventArgs args)
+    {
+        Document = args.Files.FirstOrDefault();
+    }
+    async void Import()
+    {
+        HeightMatchMergeGrid = "700";
+        Exceptionfile = "";
+        NameError = "";
+        CountAction = 0;
+        IsSelectedMatch = false;
+        ShowResults = false;
+        IndividusView =new List<IndividuViewModel> { };
+        Etablissements = new List<EtablissementModel> { };
+        liste = new List<ExcelMatchMergeModel>();
+        reportList = new List<string>() { };
+        ErrorPosition = new List<int>() { };
+        try
+        {
+            var filename = Document.FileInfo.Name;
+            var path = configuration["DownloadDocumentsPath:path"] + "/" +Document.FileInfo.Name;
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
+            {
+                Document.Stream.WriteTo(fileStream);
+            }
+            await ShowBusyDialog(false);
+            fileRead = new FileInfo(path);
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            using (ExcelPackage excelPackage = new ExcelPackage(fileRead))
+            {
+                worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
+                int totlcol = worksheet.Dimension.End.Column;
+                int totlrow = worksheet.Dimension.End.Row;
+                if (totlcol != 51)
+                {
+                    NameError += " invalid Number of columns";
+                    DialogService.Open("Excel File is not valid (" + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ")", ds =>
+                        @<div>
+                                <p Style="margin-bottom: 1rem">
+
+                                    <div class="error">
+                                        <div class="row" style="margin-top: 10px">
+                                            <div class="col-md-7 d-flex align-items-start justify-content-start">
+                                                <div class="row" style="margin-left:20px">
+                                                    <RadzenIcon Icon="error" Style=" font-size: 20px; margin-right: 4px; color: #8f2203" />
+                                                    <h5>  <b>Error</b></h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 0.4rem 0;" />
+                                        <div class="d-flex justify-content-center align-items-center" style="margin-bottom:10px">
+                                            <div class="col-md-12 d-flex justify-content-center align-items-center">
+                                                <h5 class="mb-0" style="color:black">@NameError</h5>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br />
+                                </p>
+                    </div>
+                    );
+                    return;
+                }
+                for (int col = 1; col < totlcol + 1; col++)
+                {
+                    if (worksheet.Cells[1, col].Value != null)
+                    {
+                        if (col == 1)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("Civilite"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 2)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("Titre"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 3)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("NomIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 4)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("CodeExterneIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 5)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleSpecialite"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 6)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleSpecialiteSecondaire"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 7)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleTypeIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 8)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleDepartementIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 9)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("CodePostalIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 10)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("VilleIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 11)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("AdresseIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 12)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneFixeIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 13)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneMobileIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 14)
+                        {
+                            //string er = worksheet.Cells[1, col].Value.ToString();
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneFixe1Individu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 15)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneMobile1Individu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 16)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("EmailIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 17)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("FaceBookIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+
+                        }
+                        if (col == 18)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("SiteWebIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 19)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LinkedInIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 20)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("InstagramIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 21)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TweeterIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 22)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LongitudeIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 23)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("latitudeIndividu"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 24)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 25)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("CodeExterneEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 26)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleSpecialiteEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 27)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleTypeEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 28)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleCategorieEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 29)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleDepartementEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString()+ ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 30)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("CodePostalEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 31)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("VilleEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 32)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("AdresseEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 33)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleDecoupage"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 34)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("ZoneDecoupage"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 35)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("DepartementDecoupage"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 36)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LibelleTerritoire"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 37)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("DescriptionTerritoire"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 38)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneFixeEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 39)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneMobileEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 40)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneFixe1Etablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 41)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TelephoneMobile1Etablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 42)
+
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("EmailEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 43)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("FaceBookEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 44)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("SiteWebEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 45)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LinkedInEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 46)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("InstagramEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 47)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("TweeterEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 48)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("LongitudeEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+
+                        }
+                        if (col == 49)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("latitudeEtablissement"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 50)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("DateDebutActivite"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                        if (col == 51)
+                        {
+                            if (!worksheet.Cells[1, col].Value.ToString().Equals("DateFinActivite"))
+                            {
+                                reportList.Add("Invalid column name " + worksheet.Cells[1, col].Value.ToString() + ": Row 1  Column" + col);
+                                ErrorPosition.Add(1);
+                                ErrorPosition.Add(col);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        reportList.Add("Invalid column name " + ": Row 1 Column " + col);
+                        ErrorPosition.Add(1);
+                        ErrorPosition.Add(col);
+                    }
+                }
+                for (int row = 2; row < totlrow; row++)
+                {
+                    ExcelMatchMergeModel SelectedRow = new ExcelMatchMergeModel();
+                    SelectedRow.Civilite = "";
+                    SelectedRow.Titre = "";
+                    SelectedRow.NomIndividu = "";
+                    SelectedRow.CodeExterneIndividu = "";
+                    SelectedRow.LibelleSpecialite = "";
+                    SelectedRow.LibelleSpecialiteSecondaire = "";
+                    SelectedRow.LibelleTypeIndividu = "";
+                    SelectedRow.LibelleDepartementIndividu =null;
+                    SelectedRow.CodePostalIndividu = "";
+                    SelectedRow.VilleIndividu = "";
+                    SelectedRow.AdresseIndividu = "";
+                    SelectedRow.TelephoneFixeIndividu = "";
+                    SelectedRow.TelephoneMobileIndividu = "";
+                    SelectedRow.TelephoneFixe1Individu = "";
+                    SelectedRow.TelephoneMobile1Individu = "";
+                    SelectedRow.EmailIndividu = "";
+                    SelectedRow.FaceBookIndividu = "";
+                    SelectedRow.SiteWebIndividu = "";
+                    SelectedRow.LinkedInIndividu = "";
+                    SelectedRow.InstagramIndividu = "";
+                    SelectedRow.TweeterIndividu = "";
+                    SelectedRow.LongitudeIndividu="";
+                    SelectedRow.latitudeIndividu = "";
+                    SelectedRow.LibelleEtablissement = "";
+                    SelectedRow.CodeExterneEtablissement = "";
+                    SelectedRow.LibelleSpecialiteEtablissement = null;
+                    SelectedRow.LibelleTypeEtablissement = "";
+                    SelectedRow.LibelleCategorieEtablissement = "";
+                    SelectedRow.LibelleDepartementEtablissement = "";
+                    SelectedRow.CodePostalEtablissement = "";
+                    SelectedRow.VilleEtablissement = "";
+                    SelectedRow.AdresseEtablissement = "";
+                    SelectedRow.LibelleDecoupage = "";
+                    SelectedRow.ZoneDecoupage = "";
+                    SelectedRow.DepartementDecoupage = "";
+                    SelectedRow.LibelleTerritoire = "";
+                    SelectedRow.DescriptionTerritoire = "";
+                    SelectedRow.TelephoneFixeEtablissement = "";
+                    SelectedRow.TelephoneMobileEtablissement = "";
+                    SelectedRow.TelephoneFixe1Etablissement = "";
+                    SelectedRow.TelephoneMobile1Etablissement = "";
+                    SelectedRow.EmailEtablissement = "";
+                    SelectedRow.FaceBookEtablissement = "";
+                    SelectedRow.SiteWebEtablissement = "";
+                    SelectedRow.LinkedInEtablissement = "";
+                    SelectedRow.InstagramEtablissement = "";
+                    SelectedRow.TweeterEtablissement = "";
+                    SelectedRow.LongitudeEtablissement = "";
+                    SelectedRow.latitudeEtablissement = "";
+                    SelectedRow.action = false; ;
+                    int i = 0;
+                    for (int col = 1; col < totlcol + 1; col++)
+                    {
+                        if (worksheet.Cells[row, col].Value == null) i++;
+                    }
+                    if (i != 51)
+                    {
+                        for (int col = 1; col < totlcol + 1; col++)
+                        {
+                            if (worksheet.Cells[row, col].Value == null)
+                            {
+                                if (col == 3)
+                                {
+                                    reportList.Add("empty data<NomIndividu>: Row" + row + " Column" + col);
+                                    ErrorPosition.Add(row);
+                                    ErrorPosition.Add(col);
+                                }
+                                if (col == 5)
+                                {
+                                    reportList.Add("empty data<LibelleSpecialite>: Row" + row + " Column" + col);
+                                    ErrorPosition.Add(row);
+                                    ErrorPosition.Add(col);
+
+                                }
+                                if (col == 7)
+                                {
+                                    reportList.Add("empty data<LibelleTypeIndividu>: Row" + row + " Column" + col);
+                                    ErrorPosition.Add(row);
+                                    ErrorPosition.Add(col);
+                                }
+                                if (SelectedRow.LibelleEtablissement != "")
+                                {
+                                    if (col == 27)
+                                    {
+                                        reportList.Add("empty data<LibelleTypeEtablissement>: Row" + row + " Column" + col);
+                                        ErrorPosition.Add(row);
+                                        ErrorPosition.Add(col);
+                                    }
+                                    if (col == 28)
+                                    {
+                                        reportList.Add("empty data<LibelleCategorieEtablissement>: Row" + row + " Column" + col);
+                                        ErrorPosition.Add(row);
+                                        ErrorPosition.Add(col);
+
+                                    }
+                                    if (col == 29)
+                                    {
+                                        reportList.Add("empty data<LibelleDepartementEtablissement>: Row" + row + " Column" + col);
+                                        ErrorPosition.Add(row);
+                                        ErrorPosition.Add(col);
+                                    }
+
+                                }
+                            }
+                            if (worksheet.Cells[row, col].Value != null)
+                            {
+                                if (worksheet.Cells[row, col].Value.ToString() != "")
+                                {
+                                    if (col == 5)
+                                    {
+                                        SelectedRow.LibelleSpecialite = worksheet.Cells[row, col].Value.ToString();
+                                        if (Specialites.FirstOrDefault(x => x.LibelleSpecialite == SelectedRow.LibelleSpecialite) == null)
+                                        {
+                                            reportList.Add("Invalid Data<LibelleSpecialite>: Row " +row+ " Column" + col);
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                    }
+                                    if (col == 7)
+                                    {
+                                        SelectedRow.LibelleTypeIndividu = worksheet.Cells[row, col].Value.ToString();
+                                        if (TypeIndividus.FirstOrDefault(x => x.LibelleTypeIndividu == SelectedRow.LibelleTypeIndividu) == null)
+                                        {
+                                            reportList.Add("Invalid Data<LibelleTypeIndividu>: Row " +row+ " Column" + col);
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                    }
+                                    if (col == 27)
+                                    {
+                                        SelectedRow.LibelleTypeEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                        if (TypeEtablissements.FirstOrDefault(x => x.LibelleTypeEtablissement == SelectedRow.LibelleTypeEtablissement) == null)
+                                        {
+                                            reportList.Add("Invalid Data<LibelleTypeEtablissement>: Row " +row+ " Column" + col);
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                    }
+                                    if (col == 28)
+                                    {
+                                        SelectedRow.LibelleCategorieEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                        if (CategoriesEtablissements.FirstOrDefault(x => x.LibelleCategorieEtablissement == SelectedRow.LibelleCategorieEtablissement) == null)
+                                        {
+                                            reportList.Add("Invalid Data<LibelleCategorieEtablissement>: Row " +row+ " Column" + col);
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                    }
+                                    if (col == 29)
+                                    {
+                                        SelectedRow.LibelleDepartementEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                        if (Departements.FirstOrDefault(x => x.LibelleDepartement == SelectedRow.LibelleDepartementEtablissement) == null)
+                                        {
+                                            reportList.Add("Invalid Data<LibelleDepartementEtablissement>: Row " +row+ " Column" + col);
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                    }
+                                    if (col == 33)
+                                    {
+                                        SelectedRow.LibelleDecoupage = worksheet.Cells[row, col].Value.ToString();
+                                        if (Decoupages.FirstOrDefault(x => x.LibelleDecoupage == SelectedRow.LibelleDecoupage) == null)
+                                        {
+                                            reportList.Add("Invalid Data<LibelleDecoupage>: Row " +row+ " Column" + col);
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                    }
+                                    if (col == 36)
+                                    {
+                                        if (SelectedRow.LibelleDecoupage == "")
+                                        {
+                                            reportList.Add("empty data<LibelleDecoupage>: Row" + row + " Column 33");
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                        SelectedRow.LibelleTerritoire = worksheet.Cells[row, col].Value.ToString();
+                                        if (Territoires.FirstOrDefault(x => x.LibelleTerritoire == SelectedRow.LibelleTerritoire) == null)
+                                        {
+                                            reportList.Add("Invalid Data<LibelleTerritoire>: Row " +row+ " Column" + col);
+                                            ErrorPosition.Add(row);
+                                            ErrorPosition.Add(col);
+                                        }
+                                    }
+                                }
+                                if (col == 1) SelectedRow.Civilite = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 2) SelectedRow.Titre = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 3) SelectedRow.NomIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 4) SelectedRow.CodeExterneIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 6) SelectedRow.LibelleSpecialiteSecondaire = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 8) SelectedRow.LibelleDepartementIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 9) SelectedRow.CodePostalIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 10) SelectedRow.VilleIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 11) SelectedRow.AdresseIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 12) SelectedRow.TelephoneFixeIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 13) SelectedRow.TelephoneMobileIndividu  = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 14) SelectedRow.TelephoneFixe1Individu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 15) SelectedRow.TelephoneMobile1Individu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 16) SelectedRow.EmailIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 17) SelectedRow.FaceBookIndividu= worksheet.Cells[row, col].Value.ToString();
+                                if (col == 18) SelectedRow.SiteWebIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 19) SelectedRow.LinkedInIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 20) SelectedRow.InstagramIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 21) SelectedRow.TweeterIndividu= worksheet.Cells[row, col].Value.ToString();
+                                if (col == 22) SelectedRow.LongitudeIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 23) SelectedRow.latitudeIndividu = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 24) SelectedRow.LibelleEtablissement= worksheet.Cells[row, col].Value.ToString();
+                                if (col == 25) SelectedRow.CodeExterneEtablissement  = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 26) SelectedRow.LibelleSpecialiteEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 30) SelectedRow.CodePostalEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 31) SelectedRow.VilleEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 32) SelectedRow.AdresseEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 34) SelectedRow.ZoneDecoupage = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 35) SelectedRow.DepartementDecoupage = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 37) SelectedRow.DescriptionTerritoire = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 38) SelectedRow.TelephoneFixeEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 39) SelectedRow.TelephoneMobileEtablissement= worksheet.Cells[row, col].Value.ToString();
+                                if (col == 40) SelectedRow.TelephoneFixe1Etablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 41) SelectedRow.TelephoneMobile1Etablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 42) SelectedRow.EmailEtablissement= worksheet.Cells[row, col].Value.ToString();
+                                if (col == 43) SelectedRow.FaceBookEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 44) SelectedRow.SiteWebEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 45) SelectedRow.LinkedInEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 46) SelectedRow.InstagramEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 47) SelectedRow.TweeterEtablissement = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 48) SelectedRow.LongitudeEtablissement= worksheet.Cells[row, col].Value.ToString();
+                                if (col == 49) SelectedRow.latitudeEtablissement  = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 50)
+                                {
+                                    if (SelectedRow.NomIndividu != "" && SelectedRow.LibelleEtablissement != "") SelectedRow.DateDebutActivite = worksheet.Cells[row, col].Value.ToString();
+                                }
+                                if (col == 51) SelectedRow.DateFinActivite = worksheet.Cells[row, col].Value.ToString();
+                            }
+                        }
+                        liste.Add(SelectedRow);
+                    }
+                }
+                try
+                {
+                    if (reportList.Count() != 0)
+                    {
+                        ShowResults = false;
+                        StateHasChanged();
+                        reportList.Count();
+                        DialogService.Open("Excel File is not valid (" + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ")", ds =>
+                    @<div>
+                        <p Style="margin-bottom: 1rem">
+
+                        @for (int i = 0; i < reportList.Count(); i++)
+                        {
+                                <div class="error">
+                                    <div class="row" style="margin-top: 10px">
+                                        <div class="col-md-7 d-flex align-items-start justify-content-start">
+                                            <div class="row" style="margin-left:20px">
+                                                <RadzenIcon Icon="error" Style=" font-size: 20px; margin-right: 4px; color: #8f2203" />
+                                                <h5>  <b>Error</b></h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 d-flex align-items-end justify-content-end" style="margin-top:2px;">
+                                            <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="@reportList[i].Split(':')[0]" />
+                                        </div>
+                                    </div>
+                                    <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 0.4rem 0;" />
+                                    <div class="d-flex justify-content-center align-items-center" style="margin-bottom:10px">
+                                        <div class="col-md-12 d-flex justify-content-center align-items-center">
+                                            <h5 class="mb-0" style="color:black">@reportList[i].Split(':')[1]</h5>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+            }
+                        </p>
+
+                        <div class="row" style="position:sticky;z-index:20">
+                            <div class="col-md-12 d-flex align-items-center justify-content-center">
+                                <RadzenButton Text="Ok" ButtonStyle="ButtonStyle.Warning" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 100px;margin-right:10px;border-radius:1em" />
+                                <RadzenButton Text="Report" ButtonStyle="ButtonStyle.Success" Click="() =>ExportExcelErrors(ds)" Style="margin-bottom: 10px; width: 100px; border-radius: 1em" />
+                                </div>
+                        </div>
+                        </div>
+                        );
+                       return;
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+                IsImportFile = false;
+                ShowResults = true;
+                StateHasChanged();
+                CountList = liste.Count();
+                GridExcel.Refresh();
+                StateHasChanged();
+            }
+        }
+        catch (Exception Ex)
+        {
+            ShowResults = false;
+            StateHasChanged();
+            if (worksheet == null) Exceptionfile = "corrupted file";
+            else Exceptionfile = Ex.Message;
+            DialogService.Open("Excel File is not valid (" + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ")", ds =>
+               @<div>
+                    <p Style="margin-bottom: 1rem">
+
+                            <div class="error">
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-7 d-flex align-items-start justify-content-start">
+                                        <div class="row" style="margin-left:20px">
+                                            <RadzenIcon Icon="error" Style=" font-size: 20px; margin-right: 4px; color: #8f2203" />
+                                            <h5>  <b>Error</b></h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 0.4rem 0;" />
+                                <div class="d-flex justify-content-center align-items-center" style="margin-bottom:10px">
+                                    <div class="col-md-12 d-flex justify-content-center align-items-center">
+                                        <h5 class="mb-0" style="color:black">@Exceptionfile</h5>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            </p>
+                </div>
+                    );
+                        return;
+
+                    }
+    }
+
+    public async void ExportExcelErrors(DialogService ds)
+    {
+        await ShowBusyDialog(false);
+        ExportExcelService.ExportErrorExcel(fileRead, ErrorPosition);
+        try
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = "Your file is saved ", Duration = 4000 });
+            await JSRuntime.InvokeAsync<object>("open", "Exceldownload", "_blank");
+            ds.Close();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    public async void RowSelecthandler(RowSelectEventArgs<ExcelMatchMergeModel> Args)
+    {  
+        IdPlace = "";
+        IdIndividu = "";
+        IndividusView = null;
+        Etablissements = null;
+        //ShowBusyDialog(false);
+        StateHasChanged();
+        await Task.Delay(200);
+        SelectedMatchMerge = Args.Data;
+        CountAction = 0;
+        IsImportFile = false;
+        IsSelectedMatch = true;
+        DisableIndividualButton = false;
+        DisablePlaceButton = false;
+        HeightMatchMergeGrid = "400";
+        var realName = "";
+        var placeName = "";
+        var soundexSearch = "";
+        var soundexOrderBy = "";
+        var soundexSearchP = "";
+        var soundexOrderByP = "";
+        RowUpdate = new List<IndividuViewModel>();
+        RowUpdateP = new List<EtablissementModel>();
+        condition = "";
+        if (Args.Data.NomIndividu != null && Args.Data.NomIndividu != "")
+        {
+            realName = Args.Data.NomIndividu;
+            realName = Args.Data.NomIndividu.Replace("'", "''");
+            var list = realName.Split(' ');
+            if (list.Count() == 1)
+            {
+                soundexSearch = "(SOUNDEX('" + realName + "') = SOUNDEX(Nomindividu)) OR NomIndividu Like '%" + realName + "%'";
+                soundexOrderBy = "CASE WHEN NomIndividu LIKE '" + realName + "%' THEN 1  WHEN NomIndividu LIKE '%" + realName + "%' THEN 2 ELSE DIFFERENCE(NomIndividu, '" + realName + "') END";
+            }
+            if (list.Count() == 2)
+            {
+                soundexSearch = "(SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1))  OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0)))) OR NomIndividu like '" + list[0] + "% " + list[1] + "%' Or NomIndividu like '" + list[1] + "% " + list[0] + "%' OR NomIndividu like '%" + list[0] + "% " + list[1] + "%' OR NomIndividu like '%" + list[1] + "% " + list[0] + "%' ";
+                soundexOrderBy = "CASE WHEN NomIndividu LIKE '" + realName + "' THEN 1 WHEN NomIndividu like '" + list[0] + "% " + list[1] + "%' Or NomIndividu like '" + list[1] + "% " + list[0] + "%' THEN 2  when NomIndividu like '" + list[1] + "% " + list[0] + "%' THEN 3 WHEN NomIndividu like '%" + list[0] + "% " + list[1] + "%' THEN 4 WHEN NomIndividu like '%" + list[1] + "% " + list[0] + "%' THEN 5  ELSE DIFFERENCE(NomIndividu, '" + realName + "') END";
+            }
+            if (list.Count() > 2)
+            {
+                soundexSearch = "(SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 2)) ) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 2))AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0))AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 2))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 2)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 2)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 2)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(Nomindividu, ' ') WHERE ItemIndex = 0)))";
+                soundexOrderBy = "CASE WHEN NomIndividu LIKE '%" + realName.Replace(" ", "%") + "%' THEN 1 ELSE 0 END,DIFFERENCE(NomIndividu, '" + realName + "')";
+            }
+            condition = condition + soundexSearch;
+
+        }
+        IndividusView =await IndividuViewService.ListAll(condition + " and " + soundexSearch, soundexOrderBy, "");
+        condition ="";
+        if (Args.Data.LibelleEtablissement != null && Args.Data.LibelleEtablissement != "")
+        {
+            placeName = Args.Data.LibelleEtablissement;
+            placeName = Args.Data.LibelleEtablissement.Replace("'", "''");
+            var list = placeName.Split(' ');
+            if (list.Count() == 1)
+            {
+                soundexSearchP = "(SOUNDEX('" + placeName + "') = SOUNDEX(LibelleEtablissement)) OR LibelleEtablissement Like '%" + placeName + "%'";
+                soundexOrderByP = "CASE WHEN LibelleEtablissement LIKE '" + placeName + "%' THEN 1  WHEN LibelleEtablissement LIKE '%" + placeName + "%' THEN 2 ELSE DIFFERENCE(LibelleEtablissement  , '" + placeName + "') END";
+            }
+            if (list.Count() == 2)
+            {
+                soundexSearchP = "(SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1))  OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0)))) OR LibelleEtablissement like '" + list[0] + "% " + list[1] + "%' Or LibelleEtablissement like '" + list[1] + "% " + list[0] + "%' OR LibelleEtablissement like '%" + list[0] + "% " + list[1] + "%' OR LibelleEtablissement like '%" + list[1] + "% " + list[0] + "%' ";
+                soundexOrderByP = "CASE WHEN LibelleEtablissement LIKE '" + placeName + "' THEN 1 WHEN LibelleEtablissement like '" + list[0] + "% " + list[1] + "%' Or LibelleEtablissement like '" + list[1] + "% " + list[0] + "%' THEN 2  when LibelleEtablissement like '" + list[1] + "% " + list[0] + "%' THEN 3 WHEN LibelleEtablissement like '%" + list[0] + "% " + list[1] + "%' THEN 4 WHEN LibelleEtablissement like '%" + list[1] + "% " + list[0] + "%' THEN 5  ELSE DIFFERENCE(LibelleEtablissement, '" + realName + "') END";
+            }
+            if (list.Count() > 2)
+            {
+                soundexSearchP = "(SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 2)) ) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 2))AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0))AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 2))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 2)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 2)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1))) OR (SOUNDEX('" + list[0] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 2)) AND SOUNDEX('" + list[1] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 1)) AND SOUNDEX('" + list[2] + "') = SOUNDEX((SELECT s FROM SplitString(LibelleEtablissement, ' ') WHERE ItemIndex = 0)))";
+                soundexOrderByP = "CASE WHEN LibelleEtablissement LIKE '%" + placeName.Replace(" ", "%") + "%' THEN 1 ELSE 0 END,DIFFERENCE(LibelleEtablissement, '" + placeName + "')";
+            }
+
+        }
+        Etablissements =await EtablissementService.ListAll(soundexSearchP, soundexOrderByP, "");
+        StateHasChanged();
+
+    }
+
+    public async Task OnSelectUpdate(RecordClickEventArgs<IndividuViewModel> args)
+    {
+        args.RowData.IsSelectedIndividu = true;
+        RowUpdate = new List<IndividuViewModel>();
+        RowUpdate.Add(args.RowData);
+    }
+
+    public async Task OnSelectUpdatePlace(RecordClickEventArgs<EtablissementModel> args)
+    {
+        args.RowData.IsSelectedPlace = true;
+        RowUpdateP = new List<EtablissementModel>();
+        RowUpdateP.Add(args.RowData);
+    }
+
+    public async Task add(ExcelMatchMergeModel matchemerge)
+    {
+        CountAction++;
+        matchemerge.action = true;
+        if (matchemerge.LibelleSpecialite != null && matchemerge.LibelleSpecialite != "") IdSpec = SpecialiteService.GetByLibelle(matchemerge.LibelleSpecialite).Result.IdSpecialite;
+        if (matchemerge.LibelleTypeIndividu != null && matchemerge.LibelleTypeIndividu != "") IdTypeIndividu = TypeIndividuService.GetByLibelle(matchemerge.LibelleTypeIndividu).Result.idTypeIndividu;
+        if (matchemerge.LibelleDepartementIndividu != null && matchemerge.LibelleDepartementIndividu != "")
+        {
+            IdDepartement = DepartementService.GetByLibelle(matchemerge.LibelleDepartementIndividu).Result.IdDepartement;
+        }
+        else
+        {
+            IdDepartement = null;
+        }
+        IndividuModel individu = new IndividuModel();
+        individu.NomIndividu = matchemerge.NomIndividu;
+        individu.CodeExterneIndividu = matchemerge.CodeExterneIndividu;
+        individu.IdSpecialite = IdSpec;
+        individu.IdDepartement = IdDepartement;
+        individu.IdSpecialiteSecondaire = IdSpec;
+        individu.IdTypeIndividu = IdTypeIndividu;
+        individu.Civilite = matchemerge.Civilite;
+        individu.Titre = matchemerge.Titre;
+        individu.Ville = matchemerge.VilleIndividu;
+        individu.Adresse = matchemerge.AdresseIndividu;
+        individu.CodePostal = matchemerge.CodePostalIndividu;
+        individu.TelephoneFixe = matchemerge.TelephoneFixeIndividu;
+        individu.TelephoneMobile = matchemerge.TelephoneMobileIndividu; individu.IdUnivers = "1";
+        individu.TelephoneFixe1 = matchemerge.TelephoneFixe1Individu;
+        individu.TelephoneMobile1 = matchemerge.TelephoneMobile1Individu; individu.IdUnivers = "1";
+        individu.Instagram = matchemerge.InstagramIndividu;
+        individu.Tweeter = matchemerge.TweeterIndividu;
+        individu.LinkedIn = matchemerge.LinkedInIndividu;
+        individu.FaceBook = matchemerge.FaceBookIndividu;
+        individu.SiteWeb = matchemerge.SiteWebIndividu;
+        individu.Email = matchemerge.EmailIndividu;
+        individu.Longitude = matchemerge.LongitudeIndividu;
+        individu.latitude = matchemerge.latitudeIndividu;
+        individu.IdUnivers = "1";
+        individu.IdPays = "1";
+        individu.Active = true;
+        IdIndividu = await IndividuService.Create(individu);
+
+        if (IdPlace != "")
+        {
+            ActiviteModel activite = new ActiviteModel();
+            activite.IdEtablissement =IdPlace;
+            activite.IdIndividu = IdIndividu;
+            activite.DateDebutActivite = Convert.ToDateTime(matchemerge.DateDebutActivite);
+            if (matchemerge.DateFinActivite != null) activite.DateFinActivite = Convert.ToDateTime(matchemerge.DateFinActivite);
+            activite.ActivitePrincipale = true;
+            activite.Active = true;
+            await ActiviteService.Create(activite);
+            await GridExcel.UpdateRowAsync(NbRow, matchemerge);
+        }
+        showIndividualFiltered = !showIndividualFiltered;
+        DisableIndividualButton = true;
+        if (CountAction == 2)
+        {
+            IsSelectedMatch = false;
+            HeightMatchMergeGrid = "700";
+            GridExcel.Refresh();
+        }
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = "Place Added Successfully", Duration = 4000 });
+    }
+    public async Task update(ExcelMatchMergeModel matchemerge)
+    {
+        if (RowUpdate.Count() == 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Detail = "Select an Item from Similar Individuals results ", Duration = 4000 });
+            return;
+        }
+        CountAction++;
+        matchemerge.action = true;
+        if (matchemerge.LibelleSpecialite != null && matchemerge.LibelleSpecialite != "") IdSpec = SpecialiteService.GetByLibelle(matchemerge.LibelleSpecialite).Result.IdSpecialite;
+        if (matchemerge.LibelleTypeIndividu != null && matchemerge.LibelleTypeIndividu != "") IdTypeIndividu = TypeIndividuService.GetByLibelle(matchemerge.LibelleTypeIndividu).Result.idTypeIndividu;
+        if (matchemerge.LibelleDepartementIndividu != null && matchemerge.LibelleDepartementIndividu != "") IdDepartement = DepartementService.GetByLibelle(matchemerge.LibelleDepartementIndividu).Result.IdDepartement;
+        IndividuModel individu = new IndividuModel();
+        individu = await IndividuService.GetById(RowUpdate[0].IdIndividu);
+        individu.NomIndividu = matchemerge.NomIndividu;
+        individu.CodeExterneIndividu = matchemerge.CodeExterneIndividu;
+        individu.IdSpecialite = IdSpec;
+        individu.IdDepartement = IdDepartement;
+        individu.IdSpecialiteSecondaire = IdSpec;
+        individu.IdTypeIndividu = IdTypeIndividu;
+        individu.Civilite = matchemerge.Civilite;
+        individu.Titre = matchemerge.Titre;
+        individu.Ville = matchemerge.VilleIndividu;
+        individu.Adresse = matchemerge.AdresseIndividu;
+        individu.CodePostal = matchemerge.CodePostalIndividu;
+        individu.TelephoneFixe = matchemerge.TelephoneFixeIndividu;
+        individu.TelephoneMobile = matchemerge.TelephoneMobileIndividu; individu.IdUnivers = "1";
+        individu.TelephoneFixe1 = matchemerge.TelephoneFixe1Individu;
+        individu.TelephoneMobile1 = matchemerge.TelephoneMobile1Individu; individu.IdUnivers = "1";
+        individu.Instagram = matchemerge.InstagramIndividu;
+        individu.Tweeter = matchemerge.TweeterIndividu;
+        individu.LinkedIn = matchemerge.LinkedInIndividu;
+        individu.FaceBook = matchemerge.FaceBookIndividu;
+        individu.SiteWeb = matchemerge.SiteWebIndividu;
+        individu.Email = matchemerge.EmailIndividu;
+        individu.Longitude = matchemerge.LongitudeIndividu;
+        individu.latitude = matchemerge.latitudeIndividu;
+        individu.IdUnivers = "1";
+        individu.IdPays = "1";
+        individu.Active = true;
+        await IndividuService.Update(individu);
+        IdIndividu = RowUpdate[0].IdIndividu;
+        if (IdPlace != "")
+        {
+            ActiviteModel activite = new ActiviteModel();
+            activite.IdEtablissement = IdPlace;
+            activite.IdIndividu =IdIndividu;
+            activite.DateDebutActivite = Convert.ToDateTime(matchemerge.DateDebutActivite);
+            if (matchemerge.DateFinActivite != null) activite.DateFinActivite = Convert.ToDateTime(matchemerge.DateFinActivite);
+            activite.ActivitePrincipale = true;
+            activite.Active = true;
+            if (ActiviteService.GetById2(IdIndividu, IdPlace) == null) await ActiviteService.Create(activite);
+            else await ActiviteService.Update(activite);
+            await GridExcel.UpdateRowAsync(NbRow, matchemerge);
+
+        }
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = "Individual Updated Successfully", Duration = 4000 });
+        showIndividualFiltered = !showIndividualFiltered;
+        DisableIndividualButton = true;
+        if (CountAction == 2)
+        {
+            IsSelectedMatch = false;
+            HeightMatchMergeGrid = "700";
+            GridExcel.Refresh();
+        }
+    }
+    public async Task equal(ExcelMatchMergeModel matchemerge)
+    {
+        CountAction++;
+        matchemerge.action = true;
+        await GridExcel.UpdateRowAsync(NbRow, matchemerge);
+        showIndividualFiltered = !showIndividualFiltered;
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = "Action Canceled", Duration = 4000 });
+        if (CountAction == 2)
+        {
+            IsSelectedMatch = false;
+            HeightMatchMergeGrid = "700";
+            GridExcel.Refresh();
+        }
+        DisableIndividualButton = true;
+    }
+
+    public async Task addP(ExcelMatchMergeModel matchemerge)
+    {
+        CountAction++;
+        matchemerge.action = true;
+        if (matchemerge.LibelleSpecialiteEtablissement != null && matchemerge.LibelleSpecialiteEtablissement != "")
+        {
+            IdSpecialite = SpecialiteService.GetByLibelle(matchemerge.LibelleSpecialiteEtablissement).Result.IdSpecialite;
+        }
+        else
+        {
+            IdSpecialite = null;
+        }
+        if (matchemerge.LibelleTypeEtablissement != null && matchemerge.LibelleTypeEtablissement != "") IdTypeetablissement = TypeEtablissementService.GetByLibelle(matchemerge.LibelleTypeEtablissement).Result.IdTypeEtablissement;
+        if (matchemerge.LibelleCategorieEtablissement != null && matchemerge.LibelleCategorieEtablissement != "") IdCategorieEtablissement = CategorieEtablissementService.GetByLibelle(matchemerge.LibelleCategorieEtablissement).Result.IdCategorieEtablissement;
+        if (matchemerge.LibelleDepartementEtablissement != null && matchemerge.LibelleDepartementEtablissement != "") IdDepartement = DepartementService.GetByLibelle(matchemerge.LibelleDepartementEtablissement).Result.IdDepartement;
+        if (matchemerge.LibelleDecoupage != null && matchemerge.LibelleDecoupage != "") IdDecoupage = DecoupageService.GetByName(matchemerge.LibelleDecoupage).Result.IdDecoupage;
+        if (matchemerge.LibelleTerritoire != null && matchemerge.LibelleTerritoire != "") IdTerritoire = DecoupageDetailService.GetByName(matchemerge.LibelleTerritoire, IdDecoupage).Result.IdTerritoire;
+        EtablissementModel place = new EtablissementModel();
+        EtablissementTerritoireModel placeTerritory = new EtablissementTerritoireModel();
+        place.LibelleEtablissement = matchemerge.LibelleEtablissement;
+        place.CodeExterneEtablissement = matchemerge.CodeExterneEtablissement;
+        place.IdCategorieEtablissement = IdCategorieEtablissement;
+        place.IdTypeEtablissement = IdTypeetablissement;
+        place.IdSpecialite = IdSpecialite;
+        place.IdDepartement = IdDepartement;
+        place.Ville = matchemerge.VilleEtablissement;
+        place.Adresse = matchemerge.AdresseEtablissement;
+        place.CodePostal = matchemerge.CodePostalEtablissement;
+        place.TelephoneFixe = matchemerge.TelephoneFixeEtablissement;
+        place.TelephoneMobile = matchemerge.TelephoneMobileEtablissement;
+        place.TelephoneFixe1 = matchemerge.TelephoneFixe1Etablissement;
+        place.TelephoneMobile1 = matchemerge.TelephoneMobile1Etablissement;
+        place.Instagram = matchemerge.InstagramEtablissement;
+        place.Tweeter = matchemerge.TweeterEtablissement;
+        place.LinkedIn = matchemerge.LinkedInEtablissement;
+        place.FaceBook = matchemerge.FaceBookEtablissement;
+        place.SiteWeb = matchemerge.SiteWebEtablissement;
+        place.Email = matchemerge.EmailEtablissement;
+        place.Longitude = matchemerge.LongitudeEtablissement;
+        place.latitude = matchemerge.latitudeEtablissement;
+        place.IdUnivers = "1";
+        place.IdPays = "1";
+        place.Active = true;
+        IdPlace = await EtablissementService.Create(place);
+
+        //etablissement territoire
+        if (IdTerritoire != "" && IdDecoupage != "")
+        {
+            placeTerritory.IdEtablissement = IdPlace;
+            placeTerritory.IdTerritoire = IdTerritoire;
+            placeTerritory.IdDecoupage = IdDecoupage;
+            await EtablissementTerritoireService.Create(placeTerritory);
+        }
+        if (IdIndividu != "")
+        {
+            ActiviteModel activite = new ActiviteModel();
+            activite.IdEtablissement =IdPlace;
+            activite.IdIndividu = IdIndividu;
+            activite.DateDebutActivite = Convert.ToDateTime(matchemerge.DateDebutActivite);
+            if (matchemerge.DateFinActivite != null) activite.DateFinActivite = Convert.ToDateTime(matchemerge.DateFinActivite);
+            activite.ActivitePrincipale = true;
+            activite.Active = true;
+            await ActiviteService.Create(activite);
+            await GridExcel.UpdateRowAsync(NbRow, matchemerge);
+        }
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = "Place Added Successfully", Duration = 4000 });
+        showIndividualFiltered = !showIndividualFiltered;
+        DisablePlaceButton = true;
+        if (CountAction == 2)
+        {
+            IsSelectedMatch = false;
+            HeightMatchMergeGrid = "700";
+            GridExcel.Refresh();
+        }
+    }
+    public async Task updateP(ExcelMatchMergeModel matchemerge)
+    {
+        if (RowUpdateP.Count() == 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Detail = "Select an Item from Similar Places results ", Duration = 4000 });
+            return;
+        }
+        CountAction++;
+        matchemerge.action = true;
+        if (matchemerge.LibelleSpecialiteEtablissement != null && matchemerge.LibelleSpecialiteEtablissement != "") IdSpecialite = SpecialiteService.GetByLibelle(matchemerge.LibelleSpecialiteEtablissement).Result.IdSpecialite;
+        if (matchemerge.LibelleTypeEtablissement != null && matchemerge.LibelleTypeEtablissement != "") IdTypeetablissement = TypeEtablissementService.GetByLibelle(matchemerge.LibelleTypeEtablissement).Result.IdTypeEtablissement;
+        if (matchemerge.LibelleCategorieEtablissement != null && matchemerge.LibelleCategorieEtablissement != "") IdCategorieEtablissement = CategorieEtablissementService.GetByLibelle(matchemerge.LibelleCategorieEtablissement).Result.IdCategorieEtablissement;
+        if (matchemerge.LibelleDepartementEtablissement != null && matchemerge.LibelleDepartementEtablissement != "") IdDepartement = DepartementService.GetByLibelle(matchemerge.LibelleDepartementEtablissement).Result.IdDepartement;
+        EtablissementModel place = new EtablissementModel();
+        place = await EtablissementService.GetById(RowUpdateP[0].IdEtablissement);
+        place.LibelleEtablissement = matchemerge.LibelleEtablissement;
+        place.CodeExterneEtablissement = matchemerge.CodeExterneEtablissement;
+        place.IdCategorieEtablissement = IdCategorieEtablissement;
+        place.IdTypeEtablissement = IdTypeetablissement;
+        place.IdSpecialite = IdSpecialite;
+        place.IdDepartement = IdDepartement;
+        place.Ville = matchemerge.VilleEtablissement;
+        place.Adresse = matchemerge.AdresseEtablissement;
+        place.CodePostal = matchemerge.CodePostalEtablissement;
+        place.TelephoneFixe = matchemerge.TelephoneFixeEtablissement;
+        place.TelephoneMobile = matchemerge.TelephoneMobileEtablissement;
+        place.TelephoneFixe1 = matchemerge.TelephoneFixe1Etablissement;
+        place.TelephoneMobile1 = matchemerge.TelephoneMobile1Etablissement;
+        place.Instagram = matchemerge.InstagramEtablissement;
+        place.Tweeter = matchemerge.TweeterEtablissement;
+        place.LinkedIn = matchemerge.LinkedInEtablissement;
+        place.FaceBook = matchemerge.FaceBookEtablissement;
+        place.SiteWeb = matchemerge.SiteWebEtablissement;
+        place.Email = matchemerge.EmailEtablissement;
+        place.Longitude = matchemerge.LongitudeEtablissement;
+        place.latitude = matchemerge.latitudeEtablissement;
+        place.IdUnivers = "1";
+        place.IdPays = "1";
+        place.Active = true;
+        await EtablissementService.Update(place);
+        IdPlace =RowUpdateP[0].IdEtablissement;
+        if (IdIndividu != "")
+        {
+            ActiviteModel activite = new ActiviteModel();
+            activite.IdEtablissement = IdPlace;
+            activite.IdIndividu =IdIndividu;
+            activite.DateDebutActivite = Convert.ToDateTime(matchemerge.DateDebutActivite);
+            if (matchemerge.DateFinActivite != null) activite.DateFinActivite = Convert.ToDateTime(matchemerge.DateFinActivite);
+            activite.ActivitePrincipale = true;
+            activite.Active = true;
+            if (ActiviteService.GetById2(IdIndividu, IdPlace) == null) await ActiviteService.Create(activite);
+            else ActiviteService.Update(activite);
+            await GridExcel.UpdateRowAsync(NbRow, matchemerge);
+        }
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = "Place Updated Successfully", Duration = 4000 });
+        DisablePlaceButton = true;
+        if (CountAction == 2)
+        {
+            IsSelectedMatch = false;
+            HeightMatchMergeGrid = "700";
+            GridExcel.Refresh();
+        }
+    }
+    public async Task equalP(ExcelMatchMergeModel matchemerge)
+    {
+        CountAction++;
+        matchemerge.action = true;
+        await GridExcel.UpdateRowAsync(NbRow, matchemerge);
+        showIndividualFiltered = !showIndividualFiltered;
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = "Action Canceled", Duration = 4000 });
+        DisablePlaceButton = true;
+        if (CountAction == 2)
+        {
+            IsSelectedMatch = false;
+            HeightMatchMergeGrid = "700";
+            GridExcel.Refresh();
+        }
+    }
+
+    async Task ShowBusyDialog(bool withMessageAsString)
+    {
+        InvokeAsync(async () =>
+       {
+           // Simulate background task
+           await Task.Delay(2000);
+           // Close the dialog
+           DialogService.Close();
+       });
+
+        if (withMessageAsString)
+        {
+            await BusyDialog("Busy ...");
+        }
+        else
+        {
+            await BusyDialog();
+        }
+    }
+
+    async Task BusyDialog()
+    {
+        await DialogService.OpenAsync("", ds =>
+    @<SpinnerLoading />, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto" });
+    }
+
+    async Task BusyDialog(string message)
+    {
+        await DialogService.OpenAsync("", ds =>
+        {
+            RenderFragment content = b =>
+            {
+                b.OpenElement(0, "div");
+                b.AddAttribute(1, "class", "row");
+
+                b.OpenElement(2, "div");
+                b.AddAttribute(3, "class", "col-md-12");
+
+                b.AddContent(4, message);
+
+                b.CloseElement();
+                b.CloseElement();
+            };
+            return content;
+        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto" });
+    }
+
+}

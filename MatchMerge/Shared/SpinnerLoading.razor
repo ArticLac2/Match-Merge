@@ -1,0 +1,12 @@
+﻿
+@using Syncfusion.Blazor.ProgressBar
+
+<SfProgressBar @ref="ProObj5" Type="ProgressType.Circular" Value="20" Width="80px" Height="80px" ProgressColor="#3385ff"
+               IsIndeterminate="true" StartAngle="180" EndAngle="180" CornerRadius="CornerType.Round">
+    <ProgressBarAnimation Enable="true" Duration="2000" Delay="0" />
+    <div style="font-family: Roboto-Regular;font-size: 14px;color: #3385ff;">Loading</div>
+</SfProgressBar>
+
+@code {
+    public SfProgressBar ProObj1, ProObj2, ProObj3, ProObj4, ProObj5;
+}

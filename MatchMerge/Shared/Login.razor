@@ -1,0 +1,180 @@
+﻿@layout LoginLayout
+@page "/"
+@page "/login"
+
+<style>
+    body {
+        background: #daf0ff; /* fallback for old browsers */
+        background: -webkit-linear-gradient(to right, #b4b4b4, #daf0ff); /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to right, #b4b4b4, #daf0ff);
+        height: 100%;
+        margin: 0;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        animation: gradient 15s ease infinite;
+    }
+    .login-card {
+        background-color: white;
+        height: contain;
+        border-radius: 12px;
+        border: solid 0.2em #808080;
+        width: 400px;
+        height: 360px;
+    }
+    .login-icons {
+        position: absolute;
+        top: 12px;
+        left: 25px;
+        pointer-events: none;
+        color: grey;
+    }
+    .login-textbox {
+        background-color: whitesmoke;
+        width: 100%;
+        padding-left: 40px;
+        border-radius: 12px;
+        height: 110%;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .login-alert-msg {
+        color: tomato;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .login-button {
+        color: black !important;
+        background-color:lightblue !important;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 20px;
+        box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+        width: 100%;
+        height: 110%;
+        letter-spacing: 1px
+    }
+
+    .login-forgot-pass {
+        color: #808080;
+        font-size: 12px;
+        font-weight: 300;
+    }
+</style>
+
+
+<div class="row" style="margin-top:30%">
+    <div class="col-md-12 d-flex justify-content-center">
+
+        <RadzenCard class="login-card">
+            <div class="col-md-12">
+                <div class="row d-flex align-items-center justify-content-center" style="padding:5%;">
+                    <div class="col-md-12 d-flex align-items-center justify-content-center">
+                        <h1>Match & Merge</h1>
+@*                        <RadzenImage Path="images/LogoCannyForce.001.jpeg" Style="width: 100%;" />
+*@                    </div>
+                </div>
+
+                <div class="row" style="margin-top:5%">
+                    <div class="col-md-12">
+                        <RadzenIcon Icon="email" class="login-icons" />
+                        <RadzenTextBox @bind-Value="login.EMail" Placeholder="Email" class="login-textbox" Name="EMail" @onkeydown="@Enter">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+
+                <div class="row" style="margin-top:5%">
+                    <div class="col-md-12">
+                        <RadzenIcon Icon="lock" class="login-icons" />
+                        <RadzenPassword @bind-Value="login.MotDePasse" Placeholder="Password" class="login-textbox" Name="MotDePasse" @onkeydown="@Enter">
+                        </RadzenPassword>
+                    </div>
+                </div>
+
+
+                <div class="row" style="margin-top:3%;padding-right:5px">
+                    <div class="col-md-12 d-flex align-items-end justify-content-end">
+                        <RadzenLabel Text="@AlertMessage" class="login-alert-msg"> </RadzenLabel>
+                    </div>
+                </div>
+
+
+                <div class="row" style="margin-top:7%">
+                    <div class="col-md-12 d-flex align-items-center justify-content-center">
+                        <RadzenButton Size="ButtonSize.Medium" IsBusy="@busy" Click=@(args =>OnLogin()) class="login-button" Text="SIGN IN"></RadzenButton>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:5%">
+                    <div class="col-md-12 d-flex align-items-center justify-content-center">
+                        <RadzenLabel Text="Forgot Your Password?" class="login-forgot-pass"> </RadzenLabel>
+                    </div>
+                </div>
+            </div>
+        </RadzenCard>
+
+    </div>
+
+</div>
+
+@code {
+
+    string UserName;
+    string UserId;
+    string AlertMessage = "";
+    bool busy = false;
+    public UtilisateurModel login = new UtilisateurModel { };
+    IList<UtilisateurModel> utilisateurs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        utilisateurs = await UtilisateurService.ListAll("", "NomUtilisateur", "");
+    }
+
+
+    public async void OnLogin()
+    {
+        AlertMessage = "";
+        if (utilisateurs.Any(u => String.Equals(u.EMail, (string)login.EMail, StringComparison.OrdinalIgnoreCase) && u.MotDePasse.Equals(login.MotDePasse)))
+        {
+            if (utilisateurs.First(u => String.Equals(u.EMail, (string)login.EMail, StringComparison.OrdinalIgnoreCase) && u.MotDePasse.Equals(login.MotDePasse)).Suspendu)
+            {
+                AlertMessage = "Your account is suspended!";
+                StateHasChanged();
+                busy = false;
+                return;
+            }
+            else
+            {
+                var user = utilisateurs.First(u => String.Equals(u.EMail, (string)login.EMail, StringComparison.OrdinalIgnoreCase) && u.MotDePasse.Equals(login.MotDePasse));
+                UserName = user.NomUtilisateur;
+                UserId = user.IdUtilisateur;
+                await sessionStorage.ClearAsync();
+                await sessionStorage.SetItemAsync("UserId", UserId);
+                await sessionStorage.SetItemAsync("UserName", UserName);        
+                NavigationManager.NavigateTo("home");
+            }
+        }
+        else
+        {
+            AlertMessage = "Email or password is incorrect!";
+            StateHasChanged();
+            busy = false;
+        }
+    }
+
+    public async void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            busy = true;
+            await Task.Delay(1000);
+
+            busy = false;
+            OnLogin();
+        }
+    }
+}

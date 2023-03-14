@@ -1,0 +1,50 @@
+﻿@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using Radzen;
+@using MatchMerge.Shared
+@using MatchMerge.Interfaces
+@using System.Linq;
+@using BlazorInputFile;
+@using OfficeOpenXml;
+@using System.IO;
+@using FileInfo = System.IO.FileInfo;
+@using Syncfusion.Blazor.Buttons;
+@using MatchMerge.Models
+@using Syncfusion.Blazor.Popups
+@using Radzen.Blazor;
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs;
+@using MatchMerge.Data;
+@using Microsoft.Extensions.Configuration;
+@using Syncfusion.Blazor.Navigations;
+@using Blazored.LocalStorage
+@using Blazored.SessionStorage
+@inject ExportExcelService ExportExcelService
+@inject IConfiguration configuration;
+@inject IIndividuViewService IndividuViewService
+@inject NotificationService NotificationService
+@inject IIndividuService IndividuService
+@inject IActiviteService ActiviteService
+@inject IEtablissementService EtablissementService
+@inject IUniversService UniversService
+@inject IPaysService PaysService
+@inject NavigationManager NavigationManager
+@inject IDepartementService DepartementService
+@inject ISpecialiteService SpecialiteService
+@inject ITypeIndividuService TypeIndividuService
+@inject ICategorieEtablissementService CategorieEtablissementService
+@inject ITypeEtablissementService TypeEtablissementService
+@inject ISpecialiteService SpecialiteService
+@inject DialogService DialogService
+@inject IDecoupageService DecoupageService
+@inject IDecoupageDetailService DecoupageDetailService
+@inject IJSRuntime JSRuntime
+@inject IUtilisateurService UtilisateurService
+@inject ISessionStorageService sessionStorage
+@inject ILocalStorageService localStorage
+@inject IEtablissementTerritoireService EtablissementTerritoireService
